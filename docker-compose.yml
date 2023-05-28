@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  snake-server:
+    build: ./
+    command: ./wait-for-postgres.sh postgres-db ./main
+    ports:
+      - 8000:8000
+    depends_on:
+      - postgres-db
+    environment:
+      - DB_PASSWORD=${DB_PASSWORD}
+      - GAME_CLIENT_ORIGIN=${GAME_CLIENT_ORIGIN}
+      - PASSWORD_SALT=${PASSWORD_SALT}
+      - TOKEN_SIGNING_KEY=${TOKEN_SIGNING_KEY}
+    restart: on-failure
+
+  postgres-db:
+    image: postgres:latest
+    volumes:
+    - ./.database/postgres/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - 5432:5432
+    restart: always
